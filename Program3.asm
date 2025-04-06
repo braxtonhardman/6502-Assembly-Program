@@ -118,6 +118,7 @@ update_ball:
     BEQ move_right
     JMP move_left
 
+; if ball is right we are going to increment the ball pointer 1 to the right 
 move_right:
     CLC
     LDA ball_pos
@@ -128,6 +129,7 @@ move_right:
     STA $15
     rts
 
+; if the ball is left we are going to decrement the ball pinter 1 to the left 
 move_left:
     SEC
     LDA ball_pos
@@ -138,23 +140,22 @@ move_left:
     STA $15
     rts
  
-
-score:
-    rts
-
+; draw both the wall and the ball every frame
+; paddle is immedietly drawn from the input 
 display:
     jsr draw_wall
     jsr draw_ball
     rts
 
+; check the collision of the ball 
 check_ball:
-    ; copy ball position to temp ($00/$01)
+    ; store the pos of the previous ball to erase in the draw subroutine 
     LDA ball_pos
     STA $00
     LDA $15
     STA $01
 
-    ; check direction
+    ; check direction right = 1, left = 0 
     LDA ball_direction
     CMP #$01
     BEQ check_right
@@ -168,6 +169,7 @@ check_left:
     LDA $01
     SBC #$00
     STA $01
+    ; if collision is left jump over the check right 
     JMP check_collision
 
 check_right:
@@ -179,22 +181,27 @@ check_right:
     LDA $01
     ADC #$00
     STA $01
+    ; if collision is not left we automatically go to check_collision
 
+; check if the register infront of the ball_pos is 1 
 check_collision:
+    ; location uses indrect adressing stored at low $00 and hight $01 
     LDY #$00
     LDA ($00), Y
     CMP #$01
+    ;if no collision jump over switching the direction 
     BNE no_collision
 
     ; flip direction
     LDA ball_direction
     EOR #$01       ; toggle 0 <-> 1
     STA ball_direction
+    ; regardless we run into rts 
 
 no_collision:
     RTS
 
-
+; draw the wall using start_wall pointer
 draw_wall:
 ldx #$00
 wall_loop:
@@ -210,6 +217,8 @@ LDA $13             ; Load high byte
 ADC #$00            ; Add carry (if any)
 STA $13             ; Store back to high byte
 inx
+
+; loop for 32 increment wall pointer
 cpx #$20 
 bne wall_loop
 
