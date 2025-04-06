@@ -34,6 +34,9 @@ sta $15
 
 define ball_velocity_x $16
 define ball_velocity_y $17
+define ball_direction $18
+LDA #01 ; ball direction variable that controls whether or not we are going left or right (1 = right and 0 = left)
+STA ball_direction
 
 define ASCII_w $77 
 define ASCII_s $73
