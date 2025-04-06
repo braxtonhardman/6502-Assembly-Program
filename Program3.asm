@@ -10,7 +10,7 @@ define gameState            $00
 define difficulty           $02
 
 define paddle_x_max $02
-define paddle_y_max $32
+define paddle_y_max $21
 
 define ballX                $06
 define ballY                $07
@@ -104,13 +104,17 @@ updatepaddle:
 ldy #$00
 
 yloop: 
-lda #$01 
-sta screenStart, y
+ldy #$00   
 
+loop:
+lda #$01 
+sta screenStart , y 
+tya
+; Transfer Y to A
 clc
-tay 
-adc y 
-sta y 
+adc #$20        ; Add 16
+tay             ; Store result back into Y
+
 
 CPY #paddle_y_max 
-BNE yloop 
+BNE loop
