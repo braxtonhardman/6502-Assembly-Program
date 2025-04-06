@@ -26,6 +26,12 @@ sta start_wall
 lda #$02
 sta $13
 
+define ball_pos $14
+lda #$0f
+sta ball_pos 
+lda #$03 
+sta $15
+
 define ASCII_w $77 
 define ASCII_s $73
 
@@ -96,6 +102,7 @@ score:
 
 display:
     jsr draw_wall
+    jsr draw_ball
     rts
 
 gameover:
@@ -187,4 +194,10 @@ STA $20             ; Store back to low byte
 LDA $21             ; Load high byte
 ADC #$00            ; Add carry (if low byte overflowed)
 STA $21             ; Store back to high byte
+rts
+
+draw_ball: 
+ldy #$00 
+lda #$01 
+sta (ball_pos), y
 rts
