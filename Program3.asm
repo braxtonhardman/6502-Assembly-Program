@@ -35,6 +35,7 @@ sta $15
 define ball_velocity_x $16
 define ball_velocity_y $17
 define ball_direction $18
+define ball_prev_pos $19 
 LDA #01 ; ball direction variable that controls whether or not we are going left or right (1 = right and 0 = left)
 STA ball_direction
 
@@ -105,10 +106,11 @@ update:
     rts
 
 update_ball:
-    ; Erase old ball
-    LDY #$00
-    LDA #$00
-    STA (ball_pos), Y
+    ; Save current ball position to ball_prev_pos
+    LDA ball_pos
+    STA ball_prev_pos
+    LDA $15
+    STA $1A
 
     ; Move ball left or right depending on direction
     LDA ball_direction
@@ -280,9 +282,14 @@ ADC #$00            ; Add carry (if low byte overflowed)
 STA $21             ; Store back to high byte
 rts
 
-draw_ball: 
-    ; Draw new ball
+draw_ball:
     LDY #$00
+
+    ; Erase previous ball
+    LDA #$00
+    STA (ball_prev_pos), Y
+
+    ; Draw new ball
     LDA #$01
     STA (ball_pos), Y
 
