@@ -101,15 +101,16 @@ display:
 gameover:
 
 updatepaddle: 
-ldx #$00
+ldy #$00
 
-loop:
+yloop: 
 lda #$01 
-STA screenStart, X
-INX
-CPX #paddle_x_max 
-BNE loop
+sta screenStart, y
 
-loop: 
-lda $ff 
-jmp loop
+clc
+tay 
+adc y 
+sta y 
+
+CPY #paddle_y_max 
+BNE yloop 
