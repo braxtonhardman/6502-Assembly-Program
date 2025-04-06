@@ -98,10 +98,26 @@ downKey:
     rts 
 
 update:
+    JSR update_ball
     rts
 
 update_ball:
-rts 
+    ; draw the next postion of the ball and erase the current position
+    LDA #01
+    LDY #01
+    STA (ball_pos),Y
+
+    LDA #00
+    LDY #00
+    STA (ball_pos),Y
+
+    ; move the ball over to the right
+    LDA ball_pos
+    ADC #01
+    CLC
+    STA ball_pos
+    
+    rts 
 
 score:
     rts
