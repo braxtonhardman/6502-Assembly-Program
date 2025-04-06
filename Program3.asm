@@ -32,6 +32,9 @@ sta ball_pos
 lda #$03 
 sta $15
 
+define ball_velocity_x $16
+define ball_velocity_y $17
+
 define ASCII_w $77 
 define ASCII_s $73
 
@@ -96,6 +99,9 @@ downKey:
 
 update:
     rts
+
+update_ball:
+rts 
 
 score:
     rts
