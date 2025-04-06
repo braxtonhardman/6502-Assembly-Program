@@ -9,9 +9,8 @@ define screenHeight         $28
 define gameState            $00
 define difficulty           $02
 
-define paddleX              $03
-define paddleY              $04
-define paddleHeight         $05
+define paddle_x_max $02
+define paddle_y_max $32
 
 define ballX                $06
 define ballY                $07
@@ -100,3 +99,17 @@ display:
     rts
 
 gameover:
+
+updatepaddle: 
+ldx #$00
+
+loop:
+lda #$01 
+STA screenStart, X
+INX
+CPX #paddle_x_max 
+BNE loop
+
+loop: 
+lda $ff 
+jmp loop
