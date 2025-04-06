@@ -9,7 +9,6 @@ define screenHeight         $28
 define gameState            $00
 define difficulty           $02
 
-define paddle_x_max $02
 define paddle_y_max $21
 
 define ballX                $06
@@ -118,3 +117,33 @@ tay             ; Store result back into Y
 
 CPY #paddle_y_max 
 BNE loop
+
+rightwall: 
+; Store address $0200 in $10 (low) and $11 (high)
+LDA #$1f
+STA $10        ; Low byte of $0200
+LDA #$02
+STA $11
+
+loop:
+
+LDA #$01
+STA ($10), Y
+
+CLC
+tya 
+adc #$20
+tay 
+
+CPY #$e0 
+BEQ resety 
+
+jmp loop 
+
+resety: 
+CLC 
+LDA $11
+ADC #$01 
+STA $11 
+ldy #$00
+jmp loop
