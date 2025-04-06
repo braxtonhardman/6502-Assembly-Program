@@ -6,16 +6,9 @@ define screenEnd            $05FF
 define screenWidth          $28
 define screenHeight         $28
 
-define gameState            $00
 define difficulty           $02
 
 define paddle_y_max $21
-
-define ballX                $06
-define ballY                $07
-define ballDirX             $08
-define ballDirY             $09
-define ballSpeed            $0A
 
 define lastKey              $0B
 
@@ -28,31 +21,15 @@ define ASCII_s $73
     jsr loop 
 
 init: 
-    ; load game state
-    LDA #$01
-    STA gameState
+    ;init ball pos 
+    ;low byte 
+    lda #$16
+    sta $10
 
-    ; set paddle position
-    LDA #$01
-    STA paddleX
-    LDA #$0E
-    STA paddleY
-    LDA #$04
-    STA paddleHeight
+    ; high byte
+    lda #$03 
+    sta $11  
 
-    ; set ball position
-    LDA #$10
-    STA ballX
-    LDA #$10
-    STA ballY
-    LDA #$01
-    STA ballDirX
-    LDA #$01
-    STA ballDirY
-    LDA #$01
-    STA ballSpeed
-
-    ; loop is the game cycle 
     rts
 
 loop:
@@ -95,6 +72,7 @@ score:
     rts
 
 display:
+    jsr drawball
     rts
 
 gameover:
@@ -118,6 +96,11 @@ tay             ; Store result back into Y
 CPY #paddle_y_max 
 BNE loop
 
+drawball: 
+lda #$01 
+sta ($10), y
+rts
+
 rightwall: 
 ; Store address $0200 in $10 (low) and $11 (high)
 LDA #$1f
@@ -137,7 +120,7 @@ tya
 adc #$20
 tay 
 
-; max value possible when adding 32 
+; max value possible when adding 32
 CPY #$e0 
 BEQ resety 
 
