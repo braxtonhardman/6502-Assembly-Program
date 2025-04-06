@@ -65,6 +65,7 @@ loop:
     ; update needed variables 
     jsr update 
     ; display the updated positions 
+jsr display
     jmp loop 
     rts
 
@@ -134,6 +135,14 @@ STA $13             ; Store back to high byte
 inx
 cpx #$20 
 bne wall_loop
+
+; reset wall start 
+; lower byte
+lda #$1e
+sta start_wall
+; high byte
+lda #$02
+sta $13
 rts
 
 subtract_paddle_start: 
