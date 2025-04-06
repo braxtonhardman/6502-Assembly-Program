@@ -119,7 +119,7 @@ update_ball:
     ADC #01
     CLC
     STA ball_pos
-    
+    jsr check_ball
     rts 
 
 score:
@@ -130,9 +130,53 @@ display:
     jsr draw_ball
     rts
 
-gameover:
+check_ball:
+    ; copy ball position to temp ($00/$01)
+    LDA ball_pos
+    STA $00
+    LDA $15
+    STA $01
 
-rts
+    ; check direction
+    LDA ball_direction
+    CMP #$01
+    BEQ check_right
+    ; else it's left
+check_left:
+    ; subtract 1 from pointer
+    SEC
+    LDA $00
+    SBC #$01
+    STA $00
+    LDA $01
+    SBC #$00
+    STA $01
+    JMP check_collision
+
+check_right:
+    ; add 1 to pointer
+    CLC
+    LDA $00
+    ADC #$01
+    STA $00
+    LDA $01
+    ADC #$00
+    STA $01
+
+check_collision:
+    LDY #$00
+    LDA ($00), Y
+    CMP #$01
+    BNE no_collision
+
+    ; flip direction
+    LDA ball_direction
+    EOR #$01       ; toggle 0 <-> 1
+    STA ball_direction
+
+no_collision:
+    RTS
+
 
 draw_wall:
 ldx #$00
