@@ -127,23 +127,33 @@ STA $11
 
 loop:
 
+; draw white line at position using indirect indexing
 LDA #$01
 STA ($10), Y
 
+; add 32 to the position 
 CLC
 tya 
 adc #$20
 tay 
 
+; max value possible when adding 32 
 CPY #$e0 
 BEQ resety 
 
 jmp loop 
 
 resety: 
-CLC 
+
+CLC
+
+; increment high byte by 1  
 LDA $11
 ADC #$01 
 STA $11 
+
+; reset y pointer 
 ldy #$00
+
+; jump back to the loop
 jmp loop
