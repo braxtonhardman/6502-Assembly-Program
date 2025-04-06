@@ -35,6 +35,7 @@ sta $15
 define ball_velocity_x $16
 define ball_velocity_y $17
 define ball_direction $18
+define ball_prev_pos $19 
 LDA #01 ; ball direction variable that controls whether or not we are going left or right (1 = right and 0 = left)
 STA ball_direction
 
@@ -109,10 +110,11 @@ update:
     rts
 
 update_ball:
-    ; Erase old ball
-    LDY #$00
-    LDA #$00
-    STA (ball_pos), Y
+    ; Save current ball position to ball_prev_pos
+    LDA ball_pos
+    STA ball_prev_pos
+    LDA $15
+    STA $1A
 
     ; jump to the ballSpeed label to wast time (make the processor do busy work to mimic speed)
     LDA ball_velocity_x
@@ -132,7 +134,8 @@ update_ball:
     BEQ move_right
     JMP move_left
 
-move_right: ; move the ball right
+; if ball is right we are going to increment the ball pointer 1 to the right 
+move_right:
     CLC
     LDA ball_pos
     ADC #$01
@@ -142,7 +145,8 @@ move_right: ; move the ball right
     STA $15
     rts
 
-move_left: ; move the ball left
+; if the ball is left we are going to decrement the ball pinter 1 to the left 
+move_left:
     SEC
     LDA ball_pos
     SBC #$01
@@ -152,23 +156,22 @@ move_left: ; move the ball left
     STA $15
     rts
  
-
-score:
-    rts
-
+; draw both the wall and the ball every frame
+; paddle is immedietly drawn from the input 
 display:
     jsr draw_wall
     jsr draw_ball
     rts
 
+; check the collision of the ball 
 check_ball:
-    ; copy ball position to temp ($00/$01)
+    ; store the pos of the previous ball to erase in the draw subroutine 
     LDA ball_pos
     STA $00
     LDA $15
     STA $01
 
-    ; check direction
+    ; check direction right = 1, left = 0 
     LDA ball_direction
     CMP #$01
     BEQ check_right
@@ -182,6 +185,7 @@ check_left:
     LDA $01
     SBC #$00
     STA $01
+    ; if collision is left jump over the check right 
     JMP check_collision
 
 check_right:
@@ -193,17 +197,22 @@ check_right:
     LDA $01
     ADC #$00
     STA $01
+    ; if collision is not left we automatically go to check_collision
 
+; check if the register infront of the ball_pos is 1 
 check_collision:
+    ; location uses indrect adressing stored at low $00 and hight $01 
     LDY #$00
     LDA ($00), Y
     CMP #$01
+    ;if no collision jump over switching the direction 
     BNE no_collision
 
     ; flip direction
     LDA ball_direction
     EOR #$01       ; toggle 0 <-> 1
     STA ball_direction
+    ; regardless we run into rts 
 
     ; now decrement the value from the ball speed
     LDA ball_velocity_x
@@ -222,7 +231,7 @@ check_collision:
 no_collision:
     RTS
 
-
+; draw the wall using start_wall pointer
 draw_wall:
 ldx #$00
 wall_loop:
@@ -238,6 +247,8 @@ LDA $13             ; Load high byte
 ADC #$00            ; Add carry (if any)
 STA $13             ; Store back to high byte
 inx
+
+; loop for 32 increment wall pointer
 cpx #$20 
 bne wall_loop
 
@@ -310,9 +321,14 @@ ADC #$00            ; Add carry (if low byte overflowed)
 STA $21             ; Store back to high byte
 rts
 
-draw_ball: 
-    ; Draw new ball
+draw_ball:
     LDY #$00
+
+    ; Erase previous ball
+    LDA #$00
+    STA (ball_prev_pos), Y
+
+    ; Draw new ball
     LDA #$01
     STA (ball_pos), Y
 
