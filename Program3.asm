@@ -7,7 +7,6 @@ define screenWidth          $28
 define screenHeight         $28
 
 define gameState            $00
-define score                $01
 define difficulty           $02
 
 define paddleX              $03
@@ -22,21 +21,18 @@ define ballSpeed            $0A
 
 define lastKey              $0B
 
+define ASCII_w $77 
+define ASCII_s $73
 
-;main program
+    ; initialize start of game 
+    jsr init 
+    ; main game loop for input, update, and draw 
+    jsr loop 
 
-    jsr main
-
-main:
+init: 
     ; load game state
     LDA #$01
     STA gameState
-
-    ; clear score and set difficulty
-    LDA #$00
-    STA score
-    LDA #$01
-    STA difficulty
 
     ; set paddle position
     LDA #$01
@@ -58,15 +54,41 @@ main:
     LDA #$01
     STA ballSpeed
 
-
-
+    ; loop is the game cycle 
     rts
 
 loop:
+    ; check the input of the use 
+    jsr input 
+    ; update needed variables 
+    jsr update 
+    ; display the updated positions 
+    jsr display 
+    jmp loop 
     rts
 
+; get if user is pressing w or s
 input:
+    ; control paddle with w and s 
+    ; $ff contains the value input of keyboard 
+    LDA $ff
+    ; need to load the valeu of ASCII_w as an literal value 
+    CMP #ASCII_w
+    BEQ upKey
+    ; need to load the valeu of ASCII_s as an literal value 
+    CMP #ASCII_s 
+    BEQ downKey 
     rts
+upKey:
+    ; right now up direction is 1
+    LDA #$01 
+    STA lastKey
+    rts
+downKey: 
+    ; down direction is the value 0 
+    LDA #$00 
+    STA lastKey
+    rts 
 
 update:
     rts
