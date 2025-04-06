@@ -24,6 +24,22 @@ sta paddle_end
 lda #$03
 sta $21
 
+define start_wall $12
+; lower byte
+lda #$1e
+sta start_wall
+; high byte
+lda #$02
+sta $13
+
+define end_wall $14
+; lower byte
+lda #$ff
+sta end_wall
+; high byte
+lda #$05
+sta $15
+
 define lastKey              $0B
 
 define ASCII_w $77 
@@ -49,7 +65,6 @@ loop:
     ; update needed variables 
     jsr update 
     ; display the updated positions 
-    jsr display 
     jmp loop 
     rts
 
@@ -95,44 +110,31 @@ score:
     rts
 
 display:
+    jsr draw_wall
     rts
 
 gameover:
 
 rts
 
-rightwall: 
-; Store address $0200 in $10 (low) and $11 (high)
-LDA #$1f
-STA $10        ; Low byte of $0200
-LDA #$02
-STA $11
+draw_wall:
+ldx #$00
+wall_loop:
+lda #$01
+sta (start_wall), y  
 
-loop:
+CLC                 ; Clear carry before addition
+LDA $12             ; Load low byte
+ADC #$20            ; Add 32
+STA $12             ; Store back to low byte
 
-; draw white line at position using indirect indexing
-LDA #$01
-STA ($10), Y
-
-; add 32 to the position 
-CLC
-tya 
-adc #$20
-tay 
-; max value possible when adding 32
-CPY #$e0 
-BEQ resety 
-jmp loop 
-resety: 
-CLC
-; increment high byte by 1  
-LDA $11
-ADC #$01 
-STA $11 
-; reset y pointer 
-ldy #$00
-; jump back to the loop
-jmp loop
+LDA $13             ; Load high byte
+ADC #$00            ; Add carry (if any)
+STA $13             ; Store back to high byte
+inx
+cpx #$20 
+bne wall_loop
+rts
 
 subtract_paddle_start: 
 ; draw pixel
