@@ -1,11 +1,5 @@
 ; pong game
 
-; member variables
-define screenStart          $0200
-define screenEnd            $05FF
-define screenWidth          $28
-define screenHeight         $28
-
 define paddle_start $10
 ; init paddle 
 ; low byte 
@@ -31,16 +25,6 @@ sta start_wall
 ; high byte
 lda #$02
 sta $13
-
-define end_wall $14
-; lower byte
-lda #$ff
-sta end_wall
-; high byte
-lda #$05
-sta $15
-
-define lastKey              $0B
 
 define ASCII_w $77 
 define ASCII_s $73
