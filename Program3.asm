@@ -105,22 +105,37 @@ update:
     rts
 
 update_ball:
-    ; draw the next postion of the ball and erase the current position
-    LDA #01
-    LDY #01
-    STA (ball_pos),Y
+    ; Erase old ball
+    LDY #$00
+    LDA #$00
+    STA (ball_pos), Y
 
-    LDA #00
-    LDY #00
-    STA (ball_pos),Y
+    ; Move ball left or right depending on direction
+    LDA ball_direction
+    CMP #$01
+    BEQ move_right
+    JMP move_left
 
-    ; move the ball over to the right
-    LDA ball_pos
-    ADC #01
+move_right:
     CLC
+    LDA ball_pos
+    ADC #$01
     STA ball_pos
-    jsr check_ball
-    rts 
+    LDA $15
+    ADC #$00
+    STA $15
+    rts
+
+move_left:
+    SEC
+    LDA ball_pos
+    SBC #$01
+    STA ball_pos
+    LDA $15
+    SBC #$00
+    STA $15
+    rts
+ 
 
 score:
     rts
@@ -266,7 +281,11 @@ STA $21             ; Store back to high byte
 rts
 
 draw_ball: 
-ldy #$00 
-lda #$01 
-sta (ball_pos), y
-rts
+    ; Draw new ball
+    LDY #$00
+    LDA #$01
+    STA (ball_pos), Y
+
+    ; Check for collision
+    JSR check_ball
+    RTS
