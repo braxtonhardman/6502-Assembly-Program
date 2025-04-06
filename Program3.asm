@@ -38,6 +38,10 @@ define ball_direction $18
 LDA #01 ; ball direction variable that controls whether or not we are going left or right (1 = right and 0 = left)
 STA ball_direction
 
+; load the ball velocity into the X-register
+LDA #100
+STA ball_velocity_x
+
 define ASCII_w $77 
 define ASCII_s $73
 
@@ -110,13 +114,25 @@ update_ball:
     LDA #$00
     STA (ball_pos), Y
 
+    ; jump to the ballSpeed label to wast time (make the processor do busy work to mimic speed)
+    LDA ball_velocity_x
+    LDX #0
+    JMP ballSpeed
+
+    ; now make the processor do busy work
+    ballSpeed:
+        CMP X 
+        INX
+        BNE ballSpeed
+
+
     ; Move ball left or right depending on direction
     LDA ball_direction
     CMP #$01
     BEQ move_right
     JMP move_left
 
-move_right:
+move_right: ; move the ball right
     CLC
     LDA ball_pos
     ADC #$01
@@ -126,7 +142,7 @@ move_right:
     STA $15
     rts
 
-move_left:
+move_left: ; move the ball left
     SEC
     LDA ball_pos
     SBC #$01
@@ -188,6 +204,20 @@ check_collision:
     LDA ball_direction
     EOR #$01       ; toggle 0 <-> 1
     STA ball_direction
+
+    ; now decrement the value from the ball speed
+    LDA ball_velocity_x
+    TAX
+    DEX
+    LDX ball_velocity_x
+
+    ; make sure we arent negative
+    LDA ball_velocity_x
+    BMI negativeSpeed
+    JMP no_collision
+    negativeSpeed:
+        LDA #00
+        STA ball_velocity_x
 
 no_collision:
     RTS
